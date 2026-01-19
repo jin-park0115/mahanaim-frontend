@@ -14,8 +14,9 @@ const useUserStore = create<UserStore>((set) => ({
 
   fetchUser: async () => {
     set({ isLoading: true });
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
     try {
-      const res = await axios.get("http://localhost:8080/api/users/me", {
+      const res = await axios.get(`${baseUrl}/api/users/me`, {
         withCredentials: true,
       });
       set({ user: res.data, isLoading: false });
