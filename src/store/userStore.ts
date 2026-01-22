@@ -26,7 +26,10 @@ const useUserStore = create<UserStore>((set) => ({
     }
   },
 
-  logout: () => set({ user: null }),
+  logout: () => {
+    localStorage.removeItem("accessToken");
+    set({ user: null });
+  },
 }));
 
 export default useUserStore;

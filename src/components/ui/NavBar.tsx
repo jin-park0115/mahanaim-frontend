@@ -6,7 +6,7 @@ import {
   UserCircleIcon,
 } from "@heroicons/react/24/outline";
 import { useLocation, useNavigate } from "react-router-dom";
-import useUserStore from "../store/userStore";
+import useUserStore from "../../store/userStore";
 
 const NavBar = () => {
   const navigate = useNavigate();

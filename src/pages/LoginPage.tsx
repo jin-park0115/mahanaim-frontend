@@ -20,13 +20,12 @@ const LoginPage = () => {
     try {
       setIsSubmitting(true);
       setErrorMessage(null);
-      const res = await authApi.login({
-        email,
-        password,
-      });
+      const res = await authApi.login({ email, password });
       if (res.status == 200) {
+        const { token, message } = res.data;
         console.log(res);
-        alert(`${res.data}`);
+        localStorage.setItem("accessToken", token);
+        alert(message);
         fetchUser();
         navigation("/");
       }
