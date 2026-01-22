@@ -19,4 +19,20 @@ apiInstance.interceptors.request.use((config) => {
   return config;
 });
 
+apiInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      console.warn(
+        "토큰이 만료되었거나 유효하지 않습니다. 로그아웃 처리합니다.",
+      );
+
+      localStorage.removeItem("accessToken");
+
+      window.location.href = "/login";
+    }
+    return Promise.reject(error);
+  },
+);
+
 export default apiInstance;
