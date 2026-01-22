@@ -1,7 +1,9 @@
 import * as React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import apiInstance from "../api/axiosInstance";
+import { authApi } from "../api/auth";
+import { toErrorMessage } from "../utils/httpError";
+import FormAlert from "../components/FormAlert";
 
 const SignUpPage = () => {
   const navigation = useNavigate();
@@ -15,6 +17,8 @@ const SignUpPage = () => {
     position: "FW",
     phoneNumber: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -26,13 +30,18 @@ const SignUpPage = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const res = await apiInstance.post("users/signup", formData);
+      setIsSubmitting(true);
+      setErrorMessage(null);
+      const res = await authApi.signup(formData);
       if (res.status === 200) {
         alert("회원가입 성공! 로그인 해주세요.");
         navigation("/login");
       }
     } catch (e) {
       console.error(e);
+      setErrorMessage(toErrorMessage(e));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -50,6 +59,7 @@ const SignUpPage = () => {
           </div>
 
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+            {errorMessage && <FormAlert message={errorMessage} />}
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               {/* 이메일 (전체 너비) */}
               <div className="md:col-span-2">
@@ -162,9 +172,10 @@ const SignUpPage = () => {
 
             <button
               type="submit"
+              disabled={isSubmitting}
               className="w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
-              가입하기
+              {isSubmitting ? "처리 중..." : "가입하기"}
             </button>
           </form>
         </div>

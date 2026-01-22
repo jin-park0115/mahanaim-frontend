@@ -1,19 +1,26 @@
 import * as React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import apiInstance from "../api/axiosInstance";
+import { authApi } from "../api/auth";
 import useUserStore from "../store/userStore";
+import { toErrorMessage } from "../utils/httpError";
+import FormAlert from "../components/FormAlert";
 
 const LoginPage = () => {
   const { fetchUser } = useUserStore();
+
   const navigation = useNavigate();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const res = await apiInstance.post("users/login", {
+      setIsSubmitting(true);
+      setErrorMessage(null);
+      const res = await authApi.login({
         email,
         password,
       });
@@ -25,6 +32,9 @@ const LoginPage = () => {
       }
     } catch (e) {
       console.error(e);
+      setErrorMessage(toErrorMessage(e));
+    } finally {
+      setIsSubmitting(false);
     }
   };
   return (
@@ -40,6 +50,7 @@ const LoginPage = () => {
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          {errorMessage && <FormAlert message={errorMessage} />}
           <div className="-space-y-px rounded-md shadow-sm">
             <div className="mb-4">
               <label
@@ -79,9 +90,10 @@ const LoginPage = () => {
           <div>
             <button
               type="submit"
+              disabled={isSubmitting}
               className="group relative flex w-full justify-center rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
-              로그인
+              {isSubmitting ? "처리 중..." : "로그인"}
             </button>
           </div>
         </form>

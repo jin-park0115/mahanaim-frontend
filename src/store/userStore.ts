@@ -1,27 +1,28 @@
 import { create } from "zustand";
-import axios from "axios";
+import { authApi } from "../api/auth";
+import { toErrorMessage } from "../utils/httpError";
+import type { User } from "../types/user";
 
 interface UserStore {
-  user: string | any;
-  isLoading: boolean;
+  user: User | null;
+  authLoading: boolean;
+  authError: string | null;
   fetchUser: () => Promise<void>;
   logout: () => void;
 }
 
 const useUserStore = create<UserStore>((set) => ({
   user: null,
-  isLoading: true,
+  authLoading: true,
+  authError: null,
 
   fetchUser: async () => {
-    set({ isLoading: true });
-    const baseUrl = import.meta.env.VITE_API_BASE_URL;
+    set({ authLoading: true, authError: null });
     try {
-      const res = await axios.get(`${baseUrl}/api/users/me`, {
-        withCredentials: true,
-      });
-      set({ user: res.data, isLoading: false });
+      const res = await authApi.me();
+      set({ user: res.data, authLoading: false, authError: null });
     } catch (error) {
-      set({ user: null, isLoading: false });
+      set({ user: null, authLoading: false, authError: toErrorMessage(error) });
     }
   },
 

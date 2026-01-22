@@ -1,10 +1,11 @@
 import { Navigate, Outlet } from "react-router-dom";
 import useUserStore from "../store/userStore";
+import AuthLoading from "./AuthLoading";
 
 const ProtectedRoute = () => {
-  const { user, isLoading } = useUserStore();
+  const { user, authLoading } = useUserStore();
 
-  if (isLoading) return <div>Loading...</div>;
+  if (authLoading) return <AuthLoading />;
 
   return user ? <Outlet /> : <Navigate to="/login" replace />;
 };
